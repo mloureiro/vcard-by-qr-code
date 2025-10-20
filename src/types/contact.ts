@@ -12,7 +12,7 @@ export interface ContactData {
   jobTitle?: string;
 
   // Additional contact methods
-  website?: string;
+  websites?: string[];
 
   // Address (optional)
   address?: {

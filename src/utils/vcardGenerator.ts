@@ -40,8 +40,9 @@ export function generateVCard(data: ContactData): string {
   if (data.jobTitle) {
     card.title = data.jobTitle;
   }
-  if (data.website) {
-    card.url = data.website;
+  if (data.websites && data.websites.length > 0) {
+    // Set the first website as the primary URL
+    card.url = data.websites[0];
   }
 
   // Address
@@ -54,5 +55,17 @@ export function generateVCard(data: ContactData): string {
   }
 
   // Generate VCard string
-  return card.getFormattedString();
+  let vcardString = card.getFormattedString();
+
+  // Add additional websites manually if there are more than one
+  if (data.websites && data.websites.length > 1) {
+    // Insert additional URL fields before END:VCARD
+    const additionalUrls = data.websites
+      .slice(1)
+      .map((url) => `URL:${url}`)
+      .join('\r\n');
+    vcardString = vcardString.replace('END:VCARD', `${additionalUrls}\r\nEND:VCARD`);
+  }
+
+  return vcardString;
 }

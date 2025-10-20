@@ -13,9 +13,11 @@ const contactSchema = z.object({
   phones: z.array(z.object({
     value: z.string().min(1, 'Phone number is required').regex(/^[+\d\s()-]+$/, 'Invalid phone number format')
   })).min(1, 'At least one phone is required'),
+  websites: z.array(z.object({
+    value: z.string().url('Invalid URL').or(z.literal(''))
+  })),
   organization: z.string().optional(),
   jobTitle: z.string().optional(),
-  website: z.string().url('Invalid URL').optional().or(z.literal('')),
   address: z.object({
     street: z.string().optional(),
     city: z.string().optional(),
@@ -42,6 +44,7 @@ export function ContactForm({ onSubmit }: ContactFormProps) {
     defaultValues: {
       emails: [{ value: '' }],
       phones: [{ value: '' }],
+      websites: [{ value: '' }],
     },
   });
 
@@ -55,16 +58,23 @@ export function ContactForm({ onSubmit }: ContactFormProps) {
     name: 'phones',
   });
 
+  const { fields: websiteFields, append: appendWebsite, remove: removeWebsite } = useFieldArray({
+    control,
+    name: 'websites',
+  });
+
   const handleFormSubmit = (data: ContactFormData) => {
     // Filter out empty optional fields
+    const websites = data.websites.map(w => w.value).filter(v => v);
+
     const cleanedData: ContactData = {
       firstName: data.firstName,
       lastName: data.lastName,
       emails: data.emails.map(e => e.value).filter(v => v),
       phones: data.phones.map(p => p.value).filter(v => v),
+      ...(websites.length > 0 && { websites }),
       ...(data.organization && { organization: data.organization }),
       ...(data.jobTitle && { jobTitle: data.jobTitle }),
-      ...(data.website && { website: data.website }),
       ...(data.address && Object.values(data.address).some(v => v) && { address: data.address }),
     };
 
@@ -249,22 +259,50 @@ export function ContactForm({ onSubmit }: ContactFormProps) {
           />
         </div>
 
-        <div>
-          <label htmlFor="website" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Website
+        {/* Websites */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Website(s)
           </label>
-          <input
-            {...register('website')}
-            type="url"
-            id="website"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-            placeholder="https://example.com"
-          />
-          {errors.website && (
+          {websiteFields.map((field, index) => (
+            <div key={field.id} className="flex gap-2">
+              <div className="flex-1">
+                <input
+                  {...register(`websites.${index}.value` as const)}
+                  type="url"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  placeholder="https://example.com"
+                />
+                {errors.websites?.[index]?.value && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {errors.websites[index]?.value?.message}
+                  </p>
+                )}
+              </div>
+              {websiteFields.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeWebsite(index)}
+                  className="px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium"
+                  aria-label="Remove website"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          ))}
+          {errors.websites && !Array.isArray(errors.websites) && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.website.message}
+              {errors.websites.message}
             </p>
           )}
+          <button
+            type="button"
+            onClick={() => appendWebsite({ value: '' })}
+            className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+          >
+            + Add another website
+          </button>
         </div>
       </div>
 

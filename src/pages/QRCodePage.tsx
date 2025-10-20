@@ -123,10 +123,12 @@ export function QRCodePage() {
                   </div>
                 )}
 
-                {contactData.website && (
+                {contactData.websites && contactData.websites.length > 0 && (
                   <div>
-                    <span className="font-semibold text-gray-700 dark:text-gray-300">Website:</span>
-                    <p className="text-gray-900 dark:text-white break-all">{contactData.website}</p>
+                    <span className="font-semibold text-gray-700 dark:text-gray-300">Website{contactData.websites.length > 1 ? 's' : ''}:</span>
+                    {contactData.websites.map((website, index) => (
+                      <p key={index} className="text-gray-900 dark:text-white break-all">{website}</p>
+                    ))}
                   </div>
                 )}
 

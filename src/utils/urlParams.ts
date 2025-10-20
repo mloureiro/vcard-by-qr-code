@@ -20,10 +20,16 @@ export function serializeContactData(data: ContactData): URLSearchParams {
     params.set(`phone${index}`, phone);
   });
 
+  // Websites (array)
+  if (data.websites) {
+    data.websites.forEach((website, index) => {
+      params.set(`website${index}`, website);
+    });
+  }
+
   // Optional fields
   if (data.organization) params.set('organization', data.organization);
   if (data.jobTitle) params.set('jobTitle', data.jobTitle);
-  if (data.website) params.set('website', data.website);
 
   // Address fields
   if (data.address) {
@@ -62,6 +68,15 @@ export function deserializeContactData(params: URLSearchParams): ContactData | n
     phoneIndex++;
   }
 
+  // Parse websites array
+  const websites: string[] = [];
+  let websiteIndex = 0;
+  while (params.has(`website${websiteIndex}`)) {
+    const website = params.get(`website${websiteIndex}`);
+    if (website) websites.push(website);
+    websiteIndex++;
+  }
+
   // Validate required fields
   if (!firstName || !lastName || emails.length === 0 || phones.length === 0) {
     return null;
@@ -77,11 +92,10 @@ export function deserializeContactData(params: URLSearchParams): ContactData | n
   // Optional fields
   const organization = params.get('organization');
   const jobTitle = params.get('jobTitle');
-  const website = params.get('website');
 
   if (organization) data.organization = organization;
   if (jobTitle) data.jobTitle = jobTitle;
-  if (website) data.website = website;
+  if (websites.length > 0) data.websites = websites;
 
   // Address fields
   const street = params.get('street');
