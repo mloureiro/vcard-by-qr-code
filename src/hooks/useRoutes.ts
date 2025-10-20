@@ -15,21 +15,25 @@ export type Route = typeof ROUTES[keyof typeof ROUTES];
 export function useRoutes() {
   const basePath = import.meta.env.BASE_URL;
 
-  const currentRoute = useMemo(() => {
+  const { currentRoute, isValidRoute } = useMemo(() => {
     const pathname = window.location.pathname;
     // Remove base path and normalize
     const route = pathname.replace(basePath, '/').replace(/^\/+/, '/');
 
     // Match to known routes
-    if (route === ROUTES.QR_GENERATOR) {
-      return ROUTES.QR_GENERATOR;
+    const validRoutes = Object.values(ROUTES);
+
+    if (validRoutes.includes(route as Route)) {
+      return { currentRoute: route as Route, isValidRoute: true };
     }
 
-    return ROUTES.HOME;
+    // Invalid route - default to home but mark as invalid
+    return { currentRoute: ROUTES.HOME, isValidRoute: false };
   }, [basePath]);
 
   return {
     currentRoute,
+    isValidRoute,
     routes: ROUTES,
     basePath,
   };
