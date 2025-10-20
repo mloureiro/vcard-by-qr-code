@@ -126,9 +126,13 @@ export function QRCodePage() {
                 {contactData.websites && contactData.websites.length > 0 && (
                   <div>
                     <span className="font-semibold text-gray-700 dark:text-gray-300">Website{contactData.websites.length > 1 ? 's' : ''}:</span>
-                    {contactData.websites.map((website, index) => (
-                      <p key={index} className="text-gray-900 dark:text-white break-all">{website}</p>
-                    ))}
+                    {contactData.websites.map((website, index) => {
+                      // Remove https:// or http:// for display
+                      const displayUrl = website.replace(/^https?:\/\//, '');
+                      return (
+                        <p key={index} className="text-gray-900 dark:text-white break-all">{displayUrl}</p>
+                      );
+                    })}
                   </div>
                 )}
 

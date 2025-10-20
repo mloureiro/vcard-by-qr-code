@@ -14,7 +14,13 @@ const contactSchema = z.object({
     value: z.string().min(1, 'Phone number is required').regex(/^[+\d\s()-]+$/, 'Invalid phone number format')
   })).min(1, 'At least one phone is required'),
   websites: z.array(z.object({
-    value: z.string().url('Invalid URL').or(z.literal(''))
+    value: z.string()
+      .refine((val) => {
+        if (!val) return true; // Allow empty strings
+        // Allow URLs with or without protocol
+        const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
+        return urlPattern.test(val);
+      }, 'Invalid URL format')
   })),
   organization: z.string().optional(),
   jobTitle: z.string().optional(),
@@ -64,8 +70,17 @@ export function ContactForm({ onSubmit }: ContactFormProps) {
   });
 
   const handleFormSubmit = (data: ContactFormData) => {
-    // Filter out empty optional fields
-    const websites = data.websites.map(w => w.value).filter(v => v);
+    // Filter out empty optional fields and add https:// if missing
+    const websites = data.websites
+      .map(w => w.value)
+      .filter(v => v)
+      .map(url => {
+        // Add https:// if no protocol is specified
+        if (!url.match(/^https?:\/\//i)) {
+          return `https://${url}`;
+        }
+        return url;
+      });
 
     const cleanedData: ContactData = {
       firstName: data.firstName,
@@ -269,9 +284,9 @@ export function ContactForm({ onSubmit }: ContactFormProps) {
               <div className="flex-1">
                 <input
                   {...register(`websites.${index}.value` as const)}
-                  type="url"
+                  type="text"
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                  placeholder="https://example.com"
+                  placeholder="example.com"
                 />
                 {errors.websites?.[index]?.value && (
                   <p className="mt-1 text-sm text-red-600 dark:text-red-400">
