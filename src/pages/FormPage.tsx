@@ -5,7 +5,8 @@ import { serializeContactData } from '../utils';
 export function FormPage() {
   const handleFormSubmit = (data: ContactData) => {
     const params = serializeContactData(data);
-    window.location.href = `/generate?${params.toString()}`;
+    const basePath = import.meta.env.BASE_URL;
+    window.location.href = `${basePath}generate?${params.toString()}`;
   };
 
   return (

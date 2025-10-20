@@ -34,7 +34,7 @@ export function QRCodePage() {
             </h2>
             <p className="text-gray-700 dark:text-gray-300 mb-6">{error}</p>
             <a
-              href="/"
+              href={import.meta.env.BASE_URL}
               className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200"
             >
               Go Back to Form
@@ -73,7 +73,7 @@ export function QRCodePage() {
 
               <div className="mt-6">
                 <a
-                  href="/"
+                  href={import.meta.env.BASE_URL}
                   className="block w-full text-center bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                 >
                   Create Another
