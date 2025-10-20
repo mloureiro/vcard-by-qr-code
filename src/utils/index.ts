@@ -1,2 +1,3 @@
 export { serializeContactData, deserializeContactData } from './urlParams';
 export { generateVCard } from './vcardGenerator';
+export { getRouteUrl, navigateTo } from './navigation';

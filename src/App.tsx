@@ -1,14 +1,11 @@
 import { FormPage, QRCodePage } from './pages';
+import { useRoutes, ROUTES } from './hooks';
 
 function App() {
-  const pathname = window.location.pathname;
-  const basePath = import.meta.env.BASE_URL;
+  const { currentRoute } = useRoutes();
 
-  // Simple pathname-based routing
-  // Remove base path from pathname for comparison
-  const route = pathname.replace(basePath, '/').replace(/^\/+/, '/');
-
-  if (route === '/generate') {
+  // Route to appropriate page
+  if (currentRoute === ROUTES.QR_GENERATOR) {
     return <QRCodePage />;
   }
 

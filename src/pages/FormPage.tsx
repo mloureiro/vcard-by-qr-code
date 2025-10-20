@@ -1,12 +1,12 @@
 import { ContactForm } from '../components';
 import type { ContactData } from '../types';
-import { serializeContactData } from '../utils';
+import { serializeContactData, navigateTo } from '../utils';
+import { ROUTES } from '../hooks';
 
 export function FormPage() {
   const handleFormSubmit = (data: ContactData) => {
     const params = serializeContactData(data);
-    const basePath = import.meta.env.BASE_URL;
-    window.location.href = `${basePath}generate?${params.toString()}`;
+    navigateTo(ROUTES.QR_GENERATOR, params);
   };
 
   return (
