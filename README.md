@@ -125,7 +125,9 @@ This application prioritizes your privacy:
 
 ## License
 
-[Add your license here]
+This project is licensed under the GNU General Public License v3.0 or later - see the [LICENSE](LICENSE) file for details.
+
+This means you are free to use, modify, and distribute this software, but any derivative works must also be released under the GPL v3.0.
 
 ## Contributing
 
