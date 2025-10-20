@@ -98,14 +98,28 @@ export function QRCodePage() {
                 <div>
                   <span className="font-semibold text-gray-700 dark:text-gray-300">Email{contactData.emails.length > 1 ? 's' : ''}:</span>
                   {contactData.emails.map((email, index) => (
-                    <p key={index} className="text-gray-900 dark:text-white">{email}</p>
+                    <p key={index}>
+                      <a
+                        href={`mailto:${email}`}
+                        className="text-blue-600 dark:text-blue-400 hover:underline"
+                      >
+                        {email}
+                      </a>
+                    </p>
                   ))}
                 </div>
 
                 <div>
                   <span className="font-semibold text-gray-700 dark:text-gray-300">Phone{contactData.phones.length > 1 ? 's' : ''}:</span>
                   {contactData.phones.map((phone, index) => (
-                    <p key={index} className="text-gray-900 dark:text-white">{phone}</p>
+                    <p key={index}>
+                      <a
+                        href={`tel:${phone}`}
+                        className="text-blue-600 dark:text-blue-400 hover:underline"
+                      >
+                        {phone}
+                      </a>
+                    </p>
                   ))}
                 </div>
 
@@ -130,7 +144,16 @@ export function QRCodePage() {
                       // Remove https:// or http:// for display
                       const displayUrl = website.replace(/^https?:\/\//, '');
                       return (
-                        <p key={index} className="text-gray-900 dark:text-white break-all">{displayUrl}</p>
+                        <p key={index} className="break-all">
+                          <a
+                            href={website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 dark:text-blue-400 hover:underline"
+                          >
+                            {displayUrl}
+                          </a>
+                        </p>
                       );
                     })}
                   </div>
