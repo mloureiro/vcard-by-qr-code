@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import type { ContactData } from '../types';
-import { deserializeContactData } from '../utils';
+import { deserializeContactData, generateVCard } from '../utils';
+import { QRCodeDisplay } from '../components';
 
 export function QRCodePage() {
   const [contactData, setContactData] = useState<ContactData | null>(null);
@@ -16,6 +17,12 @@ export function QRCodePage() {
       setContactData(data);
     }
   }, []);
+
+  // Generate VCard data
+  const vcardData = useMemo(() => {
+    if (!contactData) return '';
+    return generateVCard(contactData);
+  }, [contactData]);
 
   if (error) {
     return (
@@ -62,16 +69,9 @@ export function QRCodePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* QR Code Display */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-              <div className="aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                <p className="text-gray-500 dark:text-gray-400">
-                  QR Code will appear here
-                </p>
-              </div>
+              <QRCodeDisplay data={vcardData} size={300} />
 
-              <div className="mt-6 space-y-3">
-                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-                  Download QR Code
-                </button>
+              <div className="mt-6">
                 <a
                   href="/"
                   className="block w-full text-center bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
