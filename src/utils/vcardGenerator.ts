@@ -11,9 +11,27 @@ export function generateVCard(data: ContactData): string {
   card.firstName = data.firstName;
   card.lastName = data.lastName;
 
-  // Contact information
-  card.email = data.email;
-  card.cellPhone = data.phone;
+  // Contact information - emails
+  if (data.emails.length > 0) {
+    card.email = data.emails[0];
+    if (data.emails.length > 1) {
+      card.workEmail = data.emails[1];
+    }
+    if (data.emails.length > 2) {
+      card.homeEmail = data.emails[2];
+    }
+  }
+
+  // Contact information - phones
+  if (data.phones.length > 0) {
+    card.cellPhone = data.phones[0];
+    if (data.phones.length > 1) {
+      card.workPhone = data.phones[1];
+    }
+    if (data.phones.length > 2) {
+      card.homePhone = data.phones[2];
+    }
+  }
 
   // Professional information
   if (data.organization) {

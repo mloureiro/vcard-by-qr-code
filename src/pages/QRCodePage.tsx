@@ -96,13 +96,17 @@ export function QRCodePage() {
                 </div>
 
                 <div>
-                  <span className="font-semibold text-gray-700 dark:text-gray-300">Email:</span>
-                  <p className="text-gray-900 dark:text-white">{contactData.email}</p>
+                  <span className="font-semibold text-gray-700 dark:text-gray-300">Email{contactData.emails.length > 1 ? 's' : ''}:</span>
+                  {contactData.emails.map((email, index) => (
+                    <p key={index} className="text-gray-900 dark:text-white">{email}</p>
+                  ))}
                 </div>
 
                 <div>
-                  <span className="font-semibold text-gray-700 dark:text-gray-300">Phone:</span>
-                  <p className="text-gray-900 dark:text-white">{contactData.phone}</p>
+                  <span className="font-semibold text-gray-700 dark:text-gray-300">Phone{contactData.phones.length > 1 ? 's' : ''}:</span>
+                  {contactData.phones.map((phone, index) => (
+                    <p key={index} className="text-gray-900 dark:text-white">{phone}</p>
+                  ))}
                 </div>
 
                 {contactData.organization && (

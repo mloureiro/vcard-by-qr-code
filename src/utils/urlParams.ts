@@ -9,8 +9,16 @@ export function serializeContactData(data: ContactData): URLSearchParams {
   // Required fields
   params.set('firstName', data.firstName);
   params.set('lastName', data.lastName);
-  params.set('email', data.email);
-  params.set('phone', data.phone);
+
+  // Emails (array)
+  data.emails.forEach((email, index) => {
+    params.set(`email${index}`, email);
+  });
+
+  // Phones (array)
+  data.phones.forEach((phone, index) => {
+    params.set(`phone${index}`, phone);
+  });
 
   // Optional fields
   if (data.organization) params.set('organization', data.organization);
@@ -35,19 +43,35 @@ export function serializeContactData(data: ContactData): URLSearchParams {
 export function deserializeContactData(params: URLSearchParams): ContactData | null {
   const firstName = params.get('firstName');
   const lastName = params.get('lastName');
-  const email = params.get('email');
-  const phone = params.get('phone');
+
+  // Parse emails array
+  const emails: string[] = [];
+  let emailIndex = 0;
+  while (params.has(`email${emailIndex}`)) {
+    const email = params.get(`email${emailIndex}`);
+    if (email) emails.push(email);
+    emailIndex++;
+  }
+
+  // Parse phones array
+  const phones: string[] = [];
+  let phoneIndex = 0;
+  while (params.has(`phone${phoneIndex}`)) {
+    const phone = params.get(`phone${phoneIndex}`);
+    if (phone) phones.push(phone);
+    phoneIndex++;
+  }
 
   // Validate required fields
-  if (!firstName || !lastName || !email || !phone) {
+  if (!firstName || !lastName || emails.length === 0 || phones.length === 0) {
     return null;
   }
 
   const data: ContactData = {
     firstName,
     lastName,
-    email,
-    phone,
+    emails,
+    phones,
   };
 
   // Optional fields

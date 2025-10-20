@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { ContactData } from '../types';
@@ -7,8 +7,12 @@ import type { ContactData } from '../types';
 const contactSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Invalid email address'),
-  phone: z.string().min(1, 'Phone number is required').regex(/^[+\d\s()-]+$/, 'Invalid phone number format'),
+  emails: z.array(z.object({
+    value: z.string().email('Invalid email address')
+  })).min(1, 'At least one email is required'),
+  phones: z.array(z.object({
+    value: z.string().min(1, 'Phone number is required').regex(/^[+\d\s()-]+$/, 'Invalid phone number format')
+  })).min(1, 'At least one phone is required'),
   organization: z.string().optional(),
   jobTitle: z.string().optional(),
   website: z.string().url('Invalid URL').optional().or(z.literal('')),
@@ -30,10 +34,25 @@ interface ContactFormProps {
 export function ContactForm({ onSubmit }: ContactFormProps) {
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
+    defaultValues: {
+      emails: [{ value: '' }],
+      phones: [{ value: '' }],
+    },
+  });
+
+  const { fields: emailFields, append: appendEmail, remove: removeEmail } = useFieldArray({
+    control,
+    name: 'emails',
+  });
+
+  const { fields: phoneFields, append: appendPhone, remove: removePhone } = useFieldArray({
+    control,
+    name: 'phones',
   });
 
   const handleFormSubmit = (data: ContactFormData) => {
@@ -41,8 +60,8 @@ export function ContactForm({ onSubmit }: ContactFormProps) {
     const cleanedData: ContactData = {
       firstName: data.firstName,
       lastName: data.lastName,
-      email: data.email,
-      phone: data.phone,
+      emails: data.emails.map(e => e.value).filter(v => v),
+      phones: data.phones.map(p => p.value).filter(v => v),
       ...(data.organization && { organization: data.organization }),
       ...(data.jobTitle && { jobTitle: data.jobTitle }),
       ...(data.website && { website: data.website }),
@@ -105,40 +124,96 @@ export function ContactForm({ onSubmit }: ContactFormProps) {
           Contact Information
         </h3>
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Email *
+        {/* Emails */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Email(s) *
           </label>
-          <input
-            {...register('email')}
-            type="email"
-            id="email"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-            placeholder="john.doe@example.com"
-          />
-          {errors.email && (
+          {emailFields.map((field, index) => (
+            <div key={field.id} className="flex gap-2">
+              <div className="flex-1">
+                <input
+                  {...register(`emails.${index}.value` as const)}
+                  type="email"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  placeholder="john.doe@example.com"
+                />
+                {errors.emails?.[index]?.value && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {errors.emails[index]?.value?.message}
+                  </p>
+                )}
+              </div>
+              {emailFields.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeEmail(index)}
+                  className="px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium"
+                  aria-label="Remove email"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          ))}
+          {errors.emails && !Array.isArray(errors.emails) && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.email.message}
+              {errors.emails.message}
             </p>
           )}
+          <button
+            type="button"
+            onClick={() => appendEmail({ value: '' })}
+            className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+          >
+            + Add another email
+          </button>
         </div>
 
-        <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Phone *
+        {/* Phones */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Phone(s) *
           </label>
-          <input
-            {...register('phone')}
-            type="tel"
-            id="phone"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-            placeholder="+1 (555) 123-4567"
-          />
-          {errors.phone && (
+          {phoneFields.map((field, index) => (
+            <div key={field.id} className="flex gap-2">
+              <div className="flex-1">
+                <input
+                  {...register(`phones.${index}.value` as const)}
+                  type="tel"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  placeholder="+1 (555) 123-4567"
+                />
+                {errors.phones?.[index]?.value && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {errors.phones[index]?.value?.message}
+                  </p>
+                )}
+              </div>
+              {phoneFields.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removePhone(index)}
+                  className="px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium"
+                  aria-label="Remove phone"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          ))}
+          {errors.phones && !Array.isArray(errors.phones) && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.phone.message}
+              {errors.phones.message}
             </p>
           )}
+          <button
+            type="button"
+            onClick={() => appendPhone({ value: '' })}
+            className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+          >
+            + Add another phone
+          </button>
         </div>
       </div>
 

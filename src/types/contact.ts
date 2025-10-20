@@ -4,8 +4,8 @@ export interface ContactData {
   lastName: string;
 
   // Contact information
-  email: string;
-  phone: string;
+  emails: string[];
+  phones: string[];
 
   // Professional information
   organization?: string;
